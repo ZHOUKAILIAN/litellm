@@ -1415,7 +1415,7 @@ def completion_cost(
                 ):
                     ### IMAGE GENERATION COST CALCULATION ###
                     return CostCalculatorUtils.route_image_generation_cost_calculator(
-                        model=model,
+                        model=selected_model or model,
                         custom_llm_provider=custom_llm_provider,
                         completion_response=completion_response,
                         quality=quality,
