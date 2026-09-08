@@ -10,31 +10,31 @@ STREAMLAKE_BASE_URL = "https://vanchin.streamlake.ai/api/gateway/v1/endpoints"
 STREAMLAKE_CHAT_URL = f"{STREAMLAKE_BASE_URL}/chat/completions"
 
 # (model key, input_cost_per_token, output_cost_per_token,
-#  cache_read_input_token_cost, max_input_tokens or None, max_output_tokens, max_tokens)
+#  cache_read_input_token_cost, max_input_tokens or None, max_output_tokens, max_tokens, rpm, tpm)
 STREAMLAKE_MODELS = (
-    ("streamlake/KAT-Coder-Pro-V2.5", 7.4e-07, 2.96e-06, 1.5e-07, None, 80000, 80000),
-    ("streamlake/GLM-5.3", 1.4e-06, 4.4e-06, 2.6e-07, 1048576, 128000, 128000),
-    ("streamlake/GLM-5.3-Flash", 1.5e-07, 5e-07, 3e-08, 1048576, 128000, 128000),
-    ("streamlake/KAT-Coder-Air-V2.5", 1.5e-07, 6e-07, 3e-08, None, 80000, 80000),
-    ("streamlake/Qwen3-Coder-Next", 3e-07, 1.5e-06, 6e-08, None, 64000, 64000),
-    ("streamlake/KAT-Coder-Pro-V2", 3e-07, 1.2e-06, 6e-08, None, 80000, 80000),
-    ("streamlake/Qwen3-Coder-480B-A35B-Instruct-FP8", 9e-07, 4.5e-06, 1.8e-07, 200000, 64000, 64000),
-    ("streamlake/Qwen3-235B-A22B-Instruct-2507", 3.5e-07, 1.4e-06, 7e-08, 126000, 32000, 32000),
-    ("streamlake/Qwen3-30B-A3B-Instruct-2507", 1.07e-07, 4.29e-07, 2.2e-08, 126000, 32000, 32000),
-    ("streamlake/Kimi-K2-Instruct-0905", 5.71e-07, 2.286e-06, 1.43e-07, 224000, 32000, 32000),
-    ("streamlake/DeepSeek-V3", 2.86e-07, 1.143e-06, 1.14e-07, 56000, 8000, 8000),
-    ("streamlake/DeepSeek-V4-Pro-0813", 1.32e-06, 3.96e-06, 4.4e-08, None, 384000, 384000),
-    ("streamlake/Qwen3-30B-A3B", 1.07e-07, 1.071e-06, 4.3e-08, 30000, 8000, 8000),
-    ("streamlake/KAT-Coder-Pro-V1", 3e-07, 1.2e-06, 6e-08, 256000, 32000, 32000),
+    ("streamlake/KAT-Coder-Pro-V2.5", 7.4e-07, 2.96e-06, 1.5e-07, None, 80000, 80000, None, None),
+    ("streamlake/GLM-5.3", 1.4e-06, 4.4e-06, 2.6e-07, 1048576, 128000, 128000, 10, 300000),
+    ("streamlake/GLM-5.3-Flash", 1.5e-07, 5e-07, 3e-08, 1048576, 128000, 128000, 30, 300000),
+    ("streamlake/KAT-Coder-Air-V2.5", 1.5e-07, 6e-07, 3e-08, None, 80000, 80000, None, None),
+    ("streamlake/Qwen3-Coder-Next", 3e-07, 1.5e-06, 6e-08, None, 64000, 64000, None, None),
+    ("streamlake/KAT-Coder-Pro-V2", 3e-07, 1.2e-06, 6e-08, None, 80000, 80000, None, None),
+    ("streamlake/Qwen3-Coder-480B-A35B-Instruct-FP8", 9e-07, 4.5e-06, 1.8e-07, 200000, 64000, 64000, None, None),
+    ("streamlake/Qwen3-235B-A22B-Instruct-2507", 3.5e-07, 1.4e-06, 7e-08, 126000, 32000, 32000, None, None),
+    ("streamlake/Qwen3-30B-A3B-Instruct-2507", 1.07e-07, 4.29e-07, 2.2e-08, 126000, 32000, 32000, None, None),
+    ("streamlake/Kimi-K2-Instruct-0905", 5.71e-07, 2.286e-06, 1.43e-07, 224000, 32000, 32000, None, None),
+    ("streamlake/DeepSeek-V3", 2.86e-07, 1.143e-06, 1.14e-07, 56000, 8000, 8000, None, None),
+    ("streamlake/DeepSeek-V4-Pro-0813", 1.32e-06, 3.96e-06, 4.4e-08, None, 384000, 384000, 30, 600000),
+    ("streamlake/Qwen3-30B-A3B", 1.07e-07, 1.071e-06, 4.3e-08, 30000, 8000, 8000, None, None),
+    ("streamlake/KAT-Coder-Pro-V1", 3e-07, 1.2e-06, 6e-08, 256000, 32000, 32000, None, None),
 )
 
 PUBLIC_MODEL_IDS = tuple(row[0].split("/", 1)[1] for row in STREAMLAKE_MODELS)
 
 STREAMLAKE_CAPABILITIES = {
-    "streamlake/GLM-5.3": {"reasoning", "function_calling", "response_schema"},
-    "streamlake/GLM-5.3-Flash": {"reasoning", "function_calling", "response_schema", "vision"},
+    "streamlake/GLM-5.3": {"reasoning", "function_calling", "response_schema", "prefill", "prompt_caching", "text"},
+    "streamlake/GLM-5.3-Flash": {"reasoning", "function_calling", "response_schema", "prefill", "prompt_caching", "vision", "image", "video", "text"},
     "streamlake/DeepSeek-V4-Pro-0813": {
-        "reasoning", "function_calling", "response_schema", "prompt_caching"
+        "reasoning", "function_calling", "response_schema", "prompt_caching", "text"
     },
 }
 
@@ -286,12 +286,12 @@ class TestStreamlakeModelMetadata:
             return json.load(f)
 
     @pytest.mark.parametrize(
-        "model, input_cost, output_cost, cache_cost, max_input, max_output, max_tokens",
+        "model, input_cost, output_cost, cache_cost, max_input, max_output, max_tokens, rpm, tpm",
         STREAMLAKE_MODELS,
         ids=[model.split("/", 1)[1] for model, *_ in STREAMLAKE_MODELS],
     )
     def test_model_entry_pricing_and_limits(
-        self, model, input_cost, output_cost, cache_cost, max_input, max_output, max_tokens
+        self, model, input_cost, output_cost, cache_cost, max_input, max_output, max_tokens, rpm, tpm
     ):
         entry = self._load("model_prices_and_context_window.json")[model]
 
@@ -308,6 +308,12 @@ class TestStreamlakeModelMetadata:
             assert entry["max_input_tokens"] == max_input
         assert entry["max_output_tokens"] == max_output
         assert entry["max_tokens"] == max_tokens
+        if model in STREAMLAKE_CAPABILITIES:
+            assert entry["rpm"] == rpm
+            assert entry["tpm"] == tpm
+        else:
+            assert rpm is None
+            assert tpm is None
 
     @pytest.mark.parametrize("model, capabilities", STREAMLAKE_CAPABILITIES.items())
     def test_new_model_capabilities(self, model, capabilities):
@@ -317,6 +323,11 @@ class TestStreamlakeModelMetadata:
         assert entry.get("supports_response_schema") is ("response_schema" in capabilities)
         assert entry.get("supports_vision", False) is ("vision" in capabilities)
         assert entry.get("supports_prompt_caching", False) is ("prompt_caching" in capabilities)
+        assert entry.get("supports_assistant_prefill", False) is ("prefill" in capabilities)
+        assert entry.get("supports_image_input", False) is ("image" in capabilities)
+        assert entry.get("supports_video_input", False) is ("video" in capabilities)
+        assert entry["supported_modalities"] == (["text", "image", "video"] if "video" in capabilities else ["text"])
+        assert entry["supported_output_modalities"] == ["text"]
 
     @pytest.mark.parametrize(
         "model, max_output_tokens",
@@ -332,6 +343,17 @@ class TestStreamlakeModelMetadata:
         assert info["mode"] == "chat"
         assert info["max_output_tokens"] == max_output_tokens
         assert info["max_tokens"] == max_output_tokens
+        assert info["rpm"] == {"streamlake/GLM-5.3": 10, "streamlake/GLM-5.3-Flash": 30, "streamlake/DeepSeek-V4-Pro-0813": 30}[model]
+        assert info["tpm"] == {"streamlake/GLM-5.3": 300000, "streamlake/GLM-5.3-Flash": 300000, "streamlake/DeepSeek-V4-Pro-0813": 600000}[model]
+        assert info["supported_modalities"] == (["text", "image", "video"] if model.endswith("Flash") else ["text"])
+        assert info["supported_output_modalities"] == ["text"]
+        assert info["supports_function_calling"] is True
+        assert info["supports_reasoning"] is True
+        assert info["supports_response_schema"] is True
+        assert info.get("supports_prompt_caching", False) is True
+        assert info.get("supports_assistant_prefill", False) is True if model.startswith("streamlake/GLM") else info.get("supports_assistant_prefill") is None
+        assert info.get("supports_image_input") is (True if model.endswith("Flash") else None)
+        assert info.get("supports_video_input") is (True if model.endswith("Flash") else None)
 
         model_cost = self._load("model_prices_and_context_window.json")
         backup = self._load("litellm", "model_prices_and_context_window_backup.json")
