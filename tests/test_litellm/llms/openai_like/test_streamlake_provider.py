@@ -24,6 +24,7 @@ STREAMLAKE_MODELS = (
     ("streamlake/Kimi-K2-Instruct-0905", 5.71e-07, 2.286e-06, 1.43e-07, 224000, 32000, 32000, None, None),
     ("streamlake/DeepSeek-V3", 2.86e-07, 1.143e-06, 1.14e-07, 56000, 8000, 8000, None, None),
     ("streamlake/DeepSeek-V4-Pro-0813", 1.32e-06, 3.96e-06, 4.4e-08, None, 384000, 384000, 30, 600000),
+    ("streamlake/deepseek-v4-flash-0731", 4.4e-07, 1.32e-06, 1.4e-08, None, 384000, 384000, 60, 600000),
     ("streamlake/Qwen3-30B-A3B", 1.07e-07, 1.071e-06, 4.3e-08, 30000, 8000, 8000, None, None),
     ("streamlake/KAT-Coder-Pro-V1", 3e-07, 1.2e-06, 6e-08, 256000, 32000, 32000, None, None),
 )
@@ -36,6 +37,7 @@ STREAMLAKE_CAPABILITIES = {
     "streamlake/DeepSeek-V4-Pro-0813": {
         "reasoning", "function_calling", "response_schema", "prompt_caching", "text"
     },
+    "streamlake/deepseek-v4-flash-0731": {"reasoning", "function_calling", "response_schema", "text"},
 }
 
 
@@ -335,6 +337,7 @@ class TestStreamlakeModelMetadata:
             ("streamlake/GLM-5.3", 128000),
             ("streamlake/GLM-5.3-Flash", 128000),
             ("streamlake/DeepSeek-V4-Pro-0813", 384000),
+            ("streamlake/deepseek-v4-flash-0731", 384000),
         ),
     )
     def test_get_model_info_resolves_new_models(self, local_model_cost_map, model, max_output_tokens):
@@ -343,14 +346,14 @@ class TestStreamlakeModelMetadata:
         assert info["mode"] == "chat"
         assert info["max_output_tokens"] == max_output_tokens
         assert info["max_tokens"] == max_output_tokens
-        assert info["rpm"] == {"streamlake/GLM-5.3": 10, "streamlake/GLM-5.3-Flash": 30, "streamlake/DeepSeek-V4-Pro-0813": 30}[model]
-        assert info["tpm"] == {"streamlake/GLM-5.3": 300000, "streamlake/GLM-5.3-Flash": 300000, "streamlake/DeepSeek-V4-Pro-0813": 600000}[model]
+        assert info["rpm"] == {"streamlake/GLM-5.3": 10, "streamlake/GLM-5.3-Flash": 30, "streamlake/DeepSeek-V4-Pro-0813": 30, "streamlake/deepseek-v4-flash-0731": 60}[model]
+        assert info["tpm"] == {"streamlake/GLM-5.3": 300000, "streamlake/GLM-5.3-Flash": 300000, "streamlake/DeepSeek-V4-Pro-0813": 600000, "streamlake/deepseek-v4-flash-0731": 600000}[model]
         assert info["supported_modalities"] == (["text", "image", "video"] if model.endswith("Flash") else ["text"])
         assert info["supported_output_modalities"] == ["text"]
         assert info["supports_function_calling"] is True
         assert info["supports_reasoning"] is True
         assert info["supports_response_schema"] is True
-        assert info.get("supports_prompt_caching", False) is True
+        assert info.get("supports_prompt_caching") is None if model == "streamlake/deepseek-v4-flash-0731" else info["supports_prompt_caching"] is True
         assert info.get("supports_assistant_prefill", False) is True if model.startswith("streamlake/GLM") else info.get("supports_assistant_prefill") is None
         assert info.get("supports_image_input") is (True if model.endswith("Flash") else None)
         assert info.get("supports_video_input") is (True if model.endswith("Flash") else None)
@@ -411,6 +414,23 @@ class TestStreamlakeModelMetadata:
             custom_llm_provider="streamlake",
         )
         expected = 1000 * 7.4e-07 + 500 * 2.96e-06
+        assert abs(cost - expected) < 1e-12
+
+    def test_completion_cost_uses_lowercase_provider_response_model(self, local_model_cost_map):
+        from litellm import completion_cost
+        from litellm.types.utils import ModelResponse, Usage
+
+        response = ModelResponse(
+            model="deepseek-v4-flash-0731",
+            usage=Usage(prompt_tokens=1000, completion_tokens=500, total_tokens=1500),
+        )
+        cost = completion_cost(
+            completion_response=response,
+            model="streamlake/ep-gwzdfk-1788868140940598786",
+            custom_llm_provider="streamlake",
+            base_model="streamlake/deepseek-v4-flash-0731",
+        )
+        expected = 1000 * 4.4e-07 + 500 * 1.32e-06
         assert abs(cost - expected) < 1e-12
 
     def test_qwen3_30b_a3b_uses_highest_published_output_price(self):
