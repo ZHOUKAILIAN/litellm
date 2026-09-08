@@ -191,6 +191,18 @@ class TestStreamlakeProviderConfig:
             assert "tool_choice" not in supported
             assert "reasoning_effort" not in supported
 
+    def test_non_json_provider_does_not_receive_base_model_kwarg(self):
+        from litellm.utils import get_optional_params
+
+        optional_params = get_optional_params(
+            model="a2a/test-agent",
+            custom_llm_provider="a2a",
+            tools=[{"type": "function", "function": {"name": "lookup"}}],
+            base_model="streamlake/KAT-Coder-Pro-V2.5",
+            drop_params=True,
+        )
+        assert "base_model" not in optional_params
+
     def test_streamlake_final_optional_params_use_base_model(self, local_model_cost_map):
         from litellm.utils import get_optional_params
 

@@ -3,7 +3,7 @@ Dynamic configuration class generator for JSON-based providers.
 """
 
 from collections.abc import Coroutine
-from typing import Any, Final, Literal, overload
+from typing import Any, Final, Literal, Protocol, overload, runtime_checkable
 
 from litellm._logging import verbose_logger
 from litellm.litellm_core_utils.prompt_templates.common_utils import (
@@ -15,6 +15,20 @@ from litellm.secret_managers.main import get_secret_str
 from litellm.types.llms.openai import AllMessageValues
 
 from .json_loader import SimpleProviderConfig
+
+
+@runtime_checkable
+class BaseModelAwareConfig(Protocol):
+    supports_base_model_hint: bool
+
+    def map_openai_params(
+        self,
+        non_default_params: dict,
+        optional_params: dict,
+        model: str,
+        drop_params: bool,
+        base_model: str | None = None,
+    ) -> dict: ...
 
 
 def create_config_class(provider: SimpleProviderConfig):
@@ -175,6 +189,7 @@ def create_config_class(provider: SimpleProviderConfig):
         def custom_llm_provider(self) -> str | None:
             return provider.slug
 
+    JSONProviderConfig.supports_base_model_hint = True
     return JSONProviderConfig
 
 
