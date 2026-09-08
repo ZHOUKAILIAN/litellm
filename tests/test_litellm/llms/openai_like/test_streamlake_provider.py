@@ -1,32 +1,3 @@
-"""
-Tests for the StreamLake (vanchin.streamlake.ai) OpenAI-compatible provider
-configuration, routing, parameter mapping and public model metadata.
-
-Source of the aligned model scope + pricing/limits:
-- Models Overview: https://www.streamlake.ai/document/DOC/mh1gbfvrdn6hpbzxixv
-- Pay-as-you-go Pricing: https://www.streamlake.ai/document/DOC/mgrnm4xm362hvp5wyce
-
-Documented assumptions encoded in the entries and asserted below:
-- Costs are per token (USD / 1M on the Pricing page, divided by 1,000,000).
-- `max_tokens` is the published *context window*; `max_input_tokens` is only set
-  when StreamLake publishes an explicit maximum-input figure (rows with "-" leave
-  it unset); `max_output_tokens` is the published maximum output.
-- Runtime calls use the caller's own Inference Endpoint ID (e.g. `ep-...`), never
-  a value hardcoded here. Endpoint-ID -> public model cost/context attribution is
-  the caller's responsibility via Router ``model_info.base_model``.
-- KAT-Coder-Pro-V2: Models Overview lists a 200K context window while the Pricing
-  page lists an input-length range up to 256K; the entry records the (more
-  conservative) Models Overview figure.
-- Qwen3-30B-A3B: output is priced per mode (NonThinking $0.429 / 1M, Thinking
-  $1.071 / 1M). LiteLLM entries carry a single output price, so the entry records
-  the default NonThinking figure; the Thinking figure is not representable.
-- Registry keys follow the repo convention of no whitespace: the Models Overview
-  display name "KAT-Coder-Pro V1" is keyed as `KAT-Coder-Pro-V1` (the name used by
-  the Pricing page), matching upstream keys which never contain spaces.
-- Cache-read pricing maps to `cache_read_input_token_cost`; StreamLake does not
-  publish a cache-write price for these text models.
-"""
-
 import json
 from pathlib import Path
 
@@ -39,24 +10,21 @@ STREAMLAKE_BASE_URL = "https://vanchin.streamlake.ai/api/gateway/v1/endpoints"
 STREAMLAKE_CHAT_URL = f"{STREAMLAKE_BASE_URL}/chat/completions"
 
 # (model key, input_cost_per_token, output_cost_per_token,
-#  cache_read_input_token_cost, max_input_tokens or None, max_output_tokens,
-#  max_tokens == published context window)
+#  cache_read_input_token_cost, max_input_tokens or None, max_output_tokens, max_tokens)
 STREAMLAKE_MODELS = (
-    ("streamlake/KAT-Coder-Pro-V2.5", 7.4e-07, 2.96e-06, 1.5e-07, None, 80000, 256000),
-    ("streamlake/KAT-Coder-Air-V2.5", 1.5e-07, 6e-07, 3e-08, None, 80000, 256000),
-    ("streamlake/Qwen3-Coder-Next", 3e-07, 1.5e-06, 6e-08, None, 64000, 256000),
-    ("streamlake/KAT-Coder-Pro-V2", 3e-07, 1.2e-06, 6e-08, None, 80000, 200000),
-    ("streamlake/Qwen3-Coder-480B-A35B-Instruct-FP8", 9e-07, 4.5e-06, 1.8e-07, 200000, 64000, 256000),
-    ("streamlake/Qwen3-235B-A22B-Instruct-2507", 3.5e-07, 1.4e-06, 7e-08, 126000, 32000, 128000),
-    ("streamlake/Qwen3-30B-A3B-Instruct-2507", 1.07e-07, 4.29e-07, 2.2e-08, 126000, 32000, 128000),
-    ("streamlake/Kimi-K2-Instruct-0905", 5.71e-07, 2.286e-06, 1.43e-07, 224000, 32000, 256000),
-    ("streamlake/DeepSeek-V3", 2.86e-07, 1.143e-06, 1.14e-07, 56000, 8000, 64000),
-    ("streamlake/Qwen3-30B-A3B", 1.07e-07, 4.29e-07, 4.3e-08, 30000, 8000, 32000),
-    ("streamlake/KAT-Coder-Pro-V1", 3e-07, 1.2e-06, 6e-08, 256000, 32000, 256000),
+    ("streamlake/KAT-Coder-Pro-V2.5", 7.4e-07, 2.96e-06, 1.5e-07, None, 80000, 80000),
+    ("streamlake/KAT-Coder-Air-V2.5", 1.5e-07, 6e-07, 3e-08, None, 80000, 80000),
+    ("streamlake/Qwen3-Coder-Next", 3e-07, 1.5e-06, 6e-08, None, 64000, 64000),
+    ("streamlake/KAT-Coder-Pro-V2", 3e-07, 1.2e-06, 6e-08, None, 80000, 80000),
+    ("streamlake/Qwen3-Coder-480B-A35B-Instruct-FP8", 9e-07, 4.5e-06, 1.8e-07, 200000, 64000, 64000),
+    ("streamlake/Qwen3-235B-A22B-Instruct-2507", 3.5e-07, 1.4e-06, 7e-08, 126000, 32000, 32000),
+    ("streamlake/Qwen3-30B-A3B-Instruct-2507", 1.07e-07, 4.29e-07, 2.2e-08, 126000, 32000, 32000),
+    ("streamlake/Kimi-K2-Instruct-0905", 5.71e-07, 2.286e-06, 1.43e-07, 224000, 32000, 32000),
+    ("streamlake/DeepSeek-V3", 2.86e-07, 1.143e-06, 1.14e-07, 56000, 8000, 8000),
+    ("streamlake/Qwen3-30B-A3B", 1.07e-07, 1.071e-06, 4.3e-08, 30000, 8000, 8000),
+    ("streamlake/KAT-Coder-Pro-V1", 3e-07, 1.2e-06, 6e-08, 256000, 32000, 32000),
 )
 
-# Names are ordered by prefix-length so each public identifier is asserted to be
-# exactly one of these (no invented aliases, no retired models).
 PUBLIC_MODEL_IDS = tuple(row[0].split("/", 1)[1] for row in STREAMLAKE_MODELS)
 
 
@@ -129,8 +97,6 @@ class TestStreamlakeProviderConfig:
         assert api_base == STREAMLAKE_BASE_URL
 
     def test_streamlake_api_key_resolved_from_env(self, monkeypatch):
-        """When no api_key is passed, the JSON registry resolves
-        ``STREAMLAKE_API_KEY`` for the request bearer auth."""
         monkeypatch.setenv("STREAMLAKE_API_KEY", "sk-env-key")
 
         _, provider, api_key, _ = get_llm_provider(
@@ -219,13 +185,28 @@ class TestStreamlakeProviderConfig:
         assert provider is not None
         config = create_config_class(provider)()
 
-        # Endpoint-ID and public models both have no capability flags in metadata,
-        # so tool/reasoning params must not be advertised.
-        for model in ("ep-test-endpoint", "KAT-Coder-Pro-V2.5"):
+        for model in ("ep-test-endpoint", "KAT-Coder-Pro-V2"):
             supported = config.get_supported_openai_params(model=model)
             assert "tools" not in supported
             assert "tool_choice" not in supported
             assert "reasoning_effort" not in supported
+
+    def test_streamlake_function_calling_follows_base_model(self, local_model_cost_map):
+        supported = litellm.get_supported_openai_params(
+            model="ep-test-endpoint",
+            custom_llm_provider="streamlake",
+            base_model="streamlake/KAT-Coder-Pro-V2.5",
+        )
+        assert supported is not None
+        assert "tools" in supported
+
+        unsupported = litellm.get_supported_openai_params(
+            model="ep-test-endpoint",
+            custom_llm_provider="streamlake",
+            base_model="streamlake/Qwen3-Coder-Next",
+        )
+        assert unsupported is not None
+        assert "tools" not in unsupported
 
     def test_streamlake_router_config_uses_base_model_for_cost_metadata(self):
         from litellm import Router
@@ -322,13 +303,18 @@ class TestStreamlakeModelMetadata:
             assert backup[model] == model_cost[model], f"{model} differs between root and backup json"
 
     def test_minimal_scope_metadata_only(self):
-        """Capability flags that require platform confirmation (tools, vision,
-        reasoning modes, prompt-caching semantics) are intentionally absent."""
         model_cost = self._load("model_prices_and_context_window.json")
+        function_calling_models = {
+            model for model, *_ in STREAMLAKE_MODELS
+            if model not in {"streamlake/Qwen3-Coder-Next", "streamlake/KAT-Coder-Pro-V2"}
+        }
         for model, *_ in STREAMLAKE_MODELS:
             entry = model_cost[model]
+            if model in function_calling_models:
+                assert entry.get("supports_function_calling") is True
+            else:
+                assert "supports_function_calling" not in entry
             for capability in (
-                "supports_function_calling",
                 "supports_parallel_function_calling",
                 "supports_tool_choice",
                 "supports_vision",
@@ -345,7 +331,7 @@ class TestStreamlakeModelMetadata:
         assert info["output_cost_per_token"] == 2.96e-06
         assert info["cache_read_input_token_cost"] == 1.5e-07
         assert info["max_output_tokens"] == 80000
-        assert info["max_tokens"] == 256000
+        assert info["max_tokens"] == 80000
         assert info["mode"] == "chat"
 
     def test_completion_cost_uses_streamlake_pricing(self, local_model_cost_map):
@@ -364,14 +350,6 @@ class TestStreamlakeModelMetadata:
         expected = 1000 * 7.4e-07 + 500 * 2.96e-06
         assert abs(cost - expected) < 1e-12
 
-    def test_qwen3_30b_a3b_records_nonthinking_output_price(self):
-        """Thinking-mode output ($1.071/1M) is not representable in one entry;
-        the default NonThinking output price is recorded."""
+    def test_qwen3_30b_a3b_uses_highest_published_output_price(self):
         entry = self._load("model_prices_and_context_window.json")["streamlake/Qwen3-30B-A3B"]
-        assert entry["output_cost_per_token"] == 4.29e-07
-
-    def test_kat_coder_pro_v2_uses_models_overview_context(self):
-        """Models Overview 200K context is recorded over the Pricing page's
-        0-256K input-length range until the actual API limit is confirmed."""
-        entry = self._load("model_prices_and_context_window.json")["streamlake/KAT-Coder-Pro-V2"]
-        assert entry["max_tokens"] == 200000
+        assert entry["output_cost_per_token"] == 1.071e-06

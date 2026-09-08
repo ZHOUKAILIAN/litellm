@@ -55822,9 +55822,10 @@
         "litellm_provider": "streamlake",
         "max_input_tokens": 56000,
         "max_output_tokens": 8000,
-        "max_tokens": 64000,
+        "max_tokens": 8000,
         "mode": "chat",
         "output_cost_per_token": 1.143e-06,
+        "supports_function_calling": true,
         "source": "https://www.streamlake.ai/document/DOC/mgrnm4xm362hvp5wyce"
     },
     "streamlake/KAT-Coder-Air-V2.5": {
@@ -55832,9 +55833,10 @@
         "input_cost_per_token": 1.5e-07,
         "litellm_provider": "streamlake",
         "max_output_tokens": 80000,
-        "max_tokens": 256000,
+        "max_tokens": 80000,
         "mode": "chat",
         "output_cost_per_token": 6e-07,
+        "supports_function_calling": true,
         "source": "https://www.streamlake.ai/document/DOC/mgrnm4xm362hvp5wyce"
     },
     "streamlake/KAT-Coder-Pro-V1": {
@@ -55843,9 +55845,10 @@
         "litellm_provider": "streamlake",
         "max_input_tokens": 256000,
         "max_output_tokens": 32000,
-        "max_tokens": 256000,
+        "max_tokens": 32000,
         "mode": "chat",
         "output_cost_per_token": 1.2e-06,
+        "supports_function_calling": true,
         "source": "https://www.streamlake.ai/document/DOC/mgrnm4xm362hvp5wyce"
     },
     "streamlake/KAT-Coder-Pro-V2": {
@@ -55853,7 +55856,7 @@
         "input_cost_per_token": 3e-07,
         "litellm_provider": "streamlake",
         "max_output_tokens": 80000,
-        "max_tokens": 200000,
+        "max_tokens": 80000,
         "mode": "chat",
         "output_cost_per_token": 1.2e-06,
         "source": "https://www.streamlake.ai/document/DOC/mgrnm4xm362hvp5wyce"
@@ -55863,9 +55866,10 @@
         "input_cost_per_token": 7.4e-07,
         "litellm_provider": "streamlake",
         "max_output_tokens": 80000,
-        "max_tokens": 256000,
+        "max_tokens": 80000,
         "mode": "chat",
         "output_cost_per_token": 2.96e-06,
+        "supports_function_calling": true,
         "source": "https://www.streamlake.ai/document/DOC/mgrnm4xm362hvp5wyce"
     },
     "streamlake/Kimi-K2-Instruct-0905": {
@@ -55874,9 +55878,10 @@
         "litellm_provider": "streamlake",
         "max_input_tokens": 224000,
         "max_output_tokens": 32000,
-        "max_tokens": 256000,
+        "max_tokens": 32000,
         "mode": "chat",
         "output_cost_per_token": 2.286e-06,
+        "supports_function_calling": true,
         "source": "https://www.streamlake.ai/document/DOC/mgrnm4xm362hvp5wyce"
     },
     "streamlake/Qwen3-235B-A22B-Instruct-2507": {
@@ -55885,9 +55890,10 @@
         "litellm_provider": "streamlake",
         "max_input_tokens": 126000,
         "max_output_tokens": 32000,
-        "max_tokens": 128000,
+        "max_tokens": 32000,
         "mode": "chat",
         "output_cost_per_token": 1.4e-06,
+        "supports_function_calling": true,
         "source": "https://www.streamlake.ai/document/DOC/mgrnm4xm362hvp5wyce"
     },
     "streamlake/Qwen3-30B-A3B": {
@@ -55896,9 +55902,10 @@
         "litellm_provider": "streamlake",
         "max_input_tokens": 30000,
         "max_output_tokens": 8000,
-        "max_tokens": 32000,
+        "max_tokens": 8000,
         "mode": "chat",
-        "output_cost_per_token": 4.29e-07,
+        "output_cost_per_token": 1.071e-06,
+        "supports_function_calling": true,
         "source": "https://www.streamlake.ai/document/DOC/mgrnm4xm362hvp5wyce"
     },
     "streamlake/Qwen3-30B-A3B-Instruct-2507": {
@@ -55907,9 +55914,10 @@
         "litellm_provider": "streamlake",
         "max_input_tokens": 126000,
         "max_output_tokens": 32000,
-        "max_tokens": 128000,
+        "max_tokens": 32000,
         "mode": "chat",
         "output_cost_per_token": 4.29e-07,
+        "supports_function_calling": true,
         "source": "https://www.streamlake.ai/document/DOC/mgrnm4xm362hvp5wyce"
     },
     "streamlake/Qwen3-Coder-480B-A35B-Instruct-FP8": {
@@ -55918,9 +55926,10 @@
         "litellm_provider": "streamlake",
         "max_input_tokens": 200000,
         "max_output_tokens": 64000,
-        "max_tokens": 256000,
+        "max_tokens": 64000,
         "mode": "chat",
         "output_cost_per_token": 4.5e-06,
+        "supports_function_calling": true,
         "source": "https://www.streamlake.ai/document/DOC/mgrnm4xm362hvp5wyce"
     },
     "streamlake/Qwen3-Coder-Next": {
@@ -55928,7 +55937,7 @@
         "input_cost_per_token": 3e-07,
         "litellm_provider": "streamlake",
         "max_output_tokens": 64000,
-        "max_tokens": 256000,
+        "max_tokens": 64000,
         "mode": "chat",
         "output_cost_per_token": 1.5e-06,
         "source": "https://www.streamlake.ai/document/DOC/mgrnm4xm362hvp5wyce"
