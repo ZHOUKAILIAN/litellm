@@ -55816,6 +55816,20 @@
         "supports_reasoning": true,
         "source": "https://serverless.tensormesh.ai/v1/models/openrouter"
     },
+    "streamlake/DeepSeek-V4-Pro-0813": {
+        "cache_read_input_token_cost": 4.4e-08,
+        "input_cost_per_token": 1.32e-06,
+        "litellm_provider": "streamlake",
+        "max_output_tokens": 384000,
+        "max_tokens": 384000,
+        "mode": "chat",
+        "output_cost_per_token": 3.96e-06,
+        "supports_function_calling": true,
+        "supports_prompt_caching": true,
+        "supports_reasoning": true,
+        "supports_response_schema": true,
+        "source": "https://www.streamlake.ai/document/DOC/mgrnm4xm362hvp5wyce"
+    },
     "streamlake/DeepSeek-V3": {
         "cache_read_input_token_cost": 1.14e-07,
         "input_cost_per_token": 2.86e-07,
@@ -55826,6 +55840,35 @@
         "mode": "chat",
         "output_cost_per_token": 1.143e-06,
         "supports_function_calling": true,
+        "source": "https://www.streamlake.ai/document/DOC/mgrnm4xm362hvp5wyce"
+    },
+    "streamlake/GLM-5.3": {
+        "cache_read_input_token_cost": 2.6e-07,
+        "input_cost_per_token": 1.4e-06,
+        "litellm_provider": "streamlake",
+        "max_input_tokens": 1048576,
+        "max_output_tokens": 128000,
+        "max_tokens": 128000,
+        "mode": "chat",
+        "output_cost_per_token": 4.4e-06,
+        "supports_function_calling": true,
+        "supports_reasoning": true,
+        "supports_response_schema": true,
+        "source": "https://www.streamlake.ai/document/DOC/mgrnm4xm362hvp5wyce"
+    },
+    "streamlake/GLM-5.3-Flash": {
+        "cache_read_input_token_cost": 3e-08,
+        "input_cost_per_token": 1.5e-07,
+        "litellm_provider": "streamlake",
+        "max_input_tokens": 1048576,
+        "max_output_tokens": 128000,
+        "max_tokens": 128000,
+        "mode": "chat",
+        "output_cost_per_token": 5e-07,
+        "supports_function_calling": true,
+        "supports_reasoning": true,
+        "supports_response_schema": true,
+        "supports_vision": true,
         "source": "https://www.streamlake.ai/document/DOC/mgrnm4xm362hvp5wyce"
     },
     "streamlake/KAT-Coder-Air-V2.5": {
