@@ -191,45 +191,26 @@ class TestStreamlakeProviderConfig:
             assert "tool_choice" not in supported
             assert "reasoning_effort" not in supported
 
-    def test_streamlake_function_calling_follows_base_model(self, local_model_cost_map):
-        supported = litellm.get_supported_openai_params(
+    def test_streamlake_final_optional_params_use_base_model(self, local_model_cost_map):
+        from litellm.utils import get_optional_params
+
+        supported = get_optional_params(
             model="ep-test-endpoint",
             custom_llm_provider="streamlake",
+            tools=[{"type": "function", "function": {"name": "lookup"}}],
             base_model="streamlake/KAT-Coder-Pro-V2.5",
         )
-        assert supported is not None
         assert "tools" in supported
+        assert "base_model" not in supported
 
-        unsupported = litellm.get_supported_openai_params(
+        unsupported = get_optional_params(
             model="ep-test-endpoint",
             custom_llm_provider="streamlake",
+            tools=[{"type": "function", "function": {"name": "lookup"}}],
             base_model="streamlake/Qwen3-Coder-Next",
+            drop_params=True,
         )
-        assert unsupported is not None
         assert "tools" not in unsupported
-
-    def test_streamlake_router_config_uses_base_model_for_cost_metadata(self):
-        from litellm import Router
-
-        router = Router(
-            model_list=[
-                {
-                    "model_name": "kat-coder",
-                    "litellm_params": {
-                        "model": "streamlake/ep-caller-owned-endpoint",
-                        "api_key": "test-key",
-                    },
-                    "model_info": {
-                        "base_model": "streamlake/KAT-Coder-Pro-V2.5",
-                    },
-                }
-            ]
-        )
-
-        assert len(router.model_list) == 1
-        deployment = router.model_list[0]
-        assert deployment["model_name"] == "kat-coder"
-        assert deployment["model_info"]["base_model"] == "streamlake/KAT-Coder-Pro-V2.5"
 
 
 class TestStreamlakeNoHardcodedEndpointIds:

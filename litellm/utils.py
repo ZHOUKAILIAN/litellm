@@ -4709,6 +4709,7 @@ def get_optional_params(
             optional_params=optional_params,
             model=model,
             drop_params=(drop_params if drop_params is not None and isinstance(drop_params, bool) else False),
+            base_model=base_model,
         )
     else:  # assume passing in params for openai-like api
         optional_params = litellm.OpenAILikeChatConfig().map_openai_params(

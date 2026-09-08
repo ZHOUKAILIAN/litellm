@@ -89,14 +89,21 @@ def create_config_class(provider: SimpleProviderConfig):
 
             return api_base
 
-        def get_supported_openai_params(self, model: str) -> list:
-            """Get supported OpenAI params, excluding tool-related params for models
-            that don't support function calling."""
+        def get_supported_openai_params(self, model: str, base_model: str | None = None) -> list:
+            """Get supported OpenAI params for a model and optional deployment hint."""
             from litellm.utils import supports_function_calling, supports_reasoning
 
             supported_params: Final = super().get_supported_openai_params(model=model)
+            if base_model and supports_function_calling(model=base_model, custom_llm_provider=provider.slug):
+                supported_params.extend(
+                    param for param in ("tools", "tool_choice", "function_call", "functions", "parallel_tool_calls")
+                    if param not in supported_params
+                )
 
-            _supports_fc: Final = supports_function_calling(model=model, custom_llm_provider=provider.slug)
+            _supports_fc: Final = supports_function_calling(model=model, custom_llm_provider=provider.slug) or (
+                base_model is not None
+                and supports_function_calling(model=base_model, custom_llm_provider=provider.slug)
+            )
 
             if not _supports_fc:
                 tool_params: Final = [
@@ -127,10 +134,11 @@ def create_config_class(provider: SimpleProviderConfig):
             optional_params: dict,
             model: str,
             drop_params: bool,
+            base_model: str | None = None,
         ) -> dict:
             """Apply parameter mappings and constraints"""
 
-            supported_params: Final = self.get_supported_openai_params(model)
+            supported_params: Final = self.get_supported_openai_params(model, base_model=base_model)
 
             # Apply supported params
             for param, value in non_default_params.items():
