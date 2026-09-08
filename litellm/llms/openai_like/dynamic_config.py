@@ -5,7 +5,6 @@ Dynamic configuration class generator for JSON-based providers.
 from collections.abc import Coroutine
 from typing import Any, Final, Literal, Protocol, overload, runtime_checkable
 
-from litellm._logging import verbose_logger
 from litellm.litellm_core_utils.prompt_templates.common_utils import (
     handle_messages_with_content_list_to_str_conversion,
 )
@@ -103,43 +102,36 @@ def create_config_class(provider: SimpleProviderConfig):
 
             return api_base
 
-        def get_supported_openai_params(self, model: str, base_model: str | None = None) -> list:
-            """Get supported OpenAI params for a model and optional deployment hint."""
+        def _get_supported_openai_params_for_model(self, model: str) -> list:
             from litellm.utils import supports_function_calling, supports_reasoning
 
             supported_params: Final = super().get_supported_openai_params(model=model)
-            if base_model and supports_function_calling(model=base_model, custom_llm_provider=provider.slug):
+            if supports_function_calling(model=model, custom_llm_provider=provider.slug):
                 supported_params.extend(
-                    param for param in ("tools", "tool_choice", "function_call", "functions", "parallel_tool_calls")
+                    param
+                    for param in ("tools", "tool_choice", "function_call", "functions", "parallel_tool_calls")
                     if param not in supported_params
                 )
-
-            _supports_fc: Final = supports_function_calling(model=model, custom_llm_provider=provider.slug) or (
-                base_model is not None
-                and supports_function_calling(model=base_model, custom_llm_provider=provider.slug)
-            )
-
-            if not _supports_fc:
-                tool_params: Final = [
-                    "tools",
-                    "tool_choice",
-                    "function_call",
-                    "functions",
-                    "parallel_tool_calls",
+            else:
+                supported_params = [
+                    param
+                    for param in supported_params
+                    if param
+                    not in {"tools", "tool_choice", "function_call", "functions", "parallel_tool_calls"}
                 ]
-                for param in tool_params:
-                    if param in supported_params:
-                        supported_params.remove(param)
-                verbose_logger.debug(
-                    "Model %s on provider %s does not support function calling — removed tool-related params from supported params.",
-                    model,
-                    provider.slug,
+            if supports_reasoning(model=model, custom_llm_provider=provider.slug):
+                if "reasoning_effort" not in supported_params:
+                    supported_params.append("reasoning_effort")
+            return supported_params
+
+        def get_supported_openai_params(self, model: str, base_model: str | None = None) -> list:
+            supported_params: Final = self._get_supported_openai_params_for_model(model)
+            if base_model and base_model != model:
+                supported_params = list(
+                    dict.fromkeys(
+                        [*supported_params, *self._get_supported_openai_params_for_model(base_model)]
+                    )
                 )
-
-            _supports_reasoning: Final = supports_reasoning(model=model, custom_llm_provider=provider.slug)
-            if _supports_reasoning and "reasoning_effort" not in supported_params:
-                supported_params.append("reasoning_effort")
-
             return supported_params
 
         def map_openai_params(

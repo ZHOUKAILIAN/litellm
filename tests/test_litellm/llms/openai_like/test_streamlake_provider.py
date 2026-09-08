@@ -203,8 +203,18 @@ class TestStreamlakeProviderConfig:
         )
         assert "base_model" not in optional_params
 
-    def test_streamlake_final_optional_params_use_base_model(self, local_model_cost_map):
+    def test_streamlake_final_optional_params_inherit_reasoning(self, local_model_cost_map):
         from litellm.utils import get_optional_params
+
+        optional_params = get_optional_params(
+            model="endpoint",
+            custom_llm_provider="publicai",
+            reasoning_effort="high",
+            base_model="publicai/allenai/Olmo-3-7B-Think",
+            drop_params=True,
+        )
+        assert optional_params["reasoning_effort"] == "high"
+        assert "base_model" not in optional_params
 
         supported = get_optional_params(
             model="ep-test-endpoint",
